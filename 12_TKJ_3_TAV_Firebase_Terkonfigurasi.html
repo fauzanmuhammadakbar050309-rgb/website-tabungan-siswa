@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12 TKJ 3 TAV - Sistem Informasi Kelas</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { margin: 0; background-color: #f4f6f9; color: #333; }
+        
+        /* Navbar */
+        .navbar {
+            background-color: #6c5ce7; color: white; padding: 15px 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .navbar-brand h2 { margin: 0; font-size: 1.1rem; font-weight: bold; }
+        .navbar-brand span { font-size: 0.75rem; opacity: 0.9; }
+        .nav-right { display: flex; align-items: center; gap: 15px; position: relative; }
+        
+        /* Menu Titik Tiga */
+        .dots-btn {
+            background: none; border: none; color: white; font-size: 1.5rem;
+            cursor: pointer; padding: 5px 10px; border-radius: 5px;
+        }
+        .dots-btn:hover { background-color: rgba(255,255,255,0.1); }
+        .dropdown-menu {
+            display: none; position: absolute; right: 0; top: 45px;
+            background-color: white; min-width: 200px; border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100; overflow: hidden;
+        }
+        .dropdown-menu.show { display: block; }
+        .dropdown-menu button {
+            width: 100%; padding: 12px 16px; border: none; background: none;
+            text-align: left; cursor: pointer; font-size: 0.95rem; color: #333;
+        }
+        .dropdown-menu button:hover { background-color: #f1f1f1; }
+
+        /* Container & Cards */
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 15px; }
+        .card {
+            background: white; padding: 25px; border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px;
+        }
+
+        /* Login Box */
+        .login-container { max-width: 440px; margin: 60px auto; padding: 0 15px; }
+        .login-card {
+            background: white; padding: 30px; border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center;
+        }
+        .login-card h2 { margin-bottom: 5px; font-size: 1.6rem; color: #1e1e1e; }
+        .login-card .subtitle { font-size: 0.8rem; color: #7f8c8d; margin-bottom: 25px; }
+        
+        .form-group { margin-bottom: 18px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; color: #333; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px 15px; border: 1px solid #e1e8ed; border-radius: 10px;
+            font-size: 0.95rem; background-color: #fafbfc; outline: none; transition: 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: #6c5ce7; background-color: #fff; }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 16px; border: none; border-radius: 10px; cursor: pointer;
+            font-weight: 600; font-size: 0.95rem; transition: 0.2s;
+        }
+        .btn-primary { background-color: #6c5ce7; color: white; width: 100%; }
+        .btn-primary:hover { background-color: #5b4cdb; }
+        .btn-success { background-color: #2ecc71; color: white; }
+        .btn-warning { background-color: #f39c12; color: white; }
+        .btn-danger { background-color: #e74c3c; color: white; }
+        .btn-secondary { background-color: #95a5a6; color: white; }
+        .btn-sm { padding: 5px 10px; font-size: 0.8rem; border-radius: 6px; }
+
+        /* Menu Utama Grid */
+        .main-menu-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px; margin-bottom: 25px;
+        }
+        .menu-tile {
+            background: white; padding: 20px; border-radius: 12px; text-align: center;
+            cursor: pointer; border: 2px solid transparent; transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04); font-weight: bold; font-size: 0.95rem; color: #2c3e50;
+        }
+        .menu-tile:hover { border-color: #6c5ce7; transform: translateY(-2px); }
+
+        /* Summary Box Tabungan */
+        .summary-banner {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white; padding: 20px; border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px;
+        }
+        .summary-banner h3 { margin: 0; font-size: 1rem; font-weight: normal; }
+        .summary-banner .total-amount { font-size: 1.8rem; font-weight: bold; margin-top: 5px; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #edf2f7; font-size: 0.9rem; }
+        th { background-color: #f8f9fa; font-weight: 600; color: #4a5568; }
+        
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
+        .badge-admin { background: #eef2ff; color: #6c5ce7; }
+        .badge-siswa { background: #ecfdf5; color: #059669; }
+        .badge-online { background: #dcfce7; color: #15803d; }
+        .badge-offline { background: #f1f5f9; color: #64748b; }
+
+        .hidden { display: none !important; }
+        .text-danger { color: #e74c3c; font-weight: bold; }
+        .text-success { color: #2ecc71; font-weight: bold; }
+        .chat-bubble {max-width:85%;padding:10px 13px;border-radius:12px;background:#fff;border:1px solid #e2e8f0;overflow-wrap:anywhere}
+        .chat-bubble.mine {align-self:flex-end;background:#eeeaff;border-color:#d8d0ff}
+        .chat-meta {font-size:.72rem;color:#64748b;margin-bottom:4px}
+        @media(max-width:600px){.card{padding:16px}table{display:block;overflow-x:auto;white-space:nowrap}.summary-banner .total-amount{font-size:1.4rem}}
+    </style>
+</head>
+<body>
+
+    <!-- HALAMAN LOGIN -->
+    <div id="login-section">
+        <div class="navbar">
+            <div class="navbar-brand">
+                <h2>12 TKJ 3 TAV</h2>
+                <span>www.12tkj3tav.com</span>
+            </div>
+        </div>
+
+        <div class="login-container">
+            <div class="login-card">
+                <h2>Masuk Akun</h2>
+                <div class="subtitle">www.12tkj3tav.com</div>
+
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="login-username" placeholder="Masukkan username">
+                </div>
+                
+                <div class="form-group">
+                    <label>Kata Sandi</label>
+                    <input type="password" id="login-password" placeholder="...">
+                </div>
+
+                <div class="form-group">
+                    <label>Akses Masuk</label>
+                    <select id="login-role-select">
+                        <option value="siswa">Siswa</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" style="margin-top: 10px;" onclick="handleLogin()">Masuk</button>
+                <p style="margin:18px 0 0;font-size:.9rem;color:#666">Belum punya akun? <a href="#" onclick="event.preventDefault();toggleRegister(true)" style="color:#6c5ce7;font-weight:700">Daftar sebagai siswa</a></p>
+                <div id="register-panel" class="hidden" style="text-align:left;margin-top:20px;padding-top:18px;border-top:1px solid #eee">
+                    <h3 style="margin:0 0 14px">Pendaftaran Siswa</h3>
+                    <div class="form-group"><label>Nama Lengkap</label><input id="reg-nama" type="text" placeholder="Nama sesuai daftar kelas"></div>
+                    <div class="form-group"><label>Username</label><input id="reg-username" type="text" placeholder="Contoh: ahmadfauzi"></div>
+                    <div class="form-group"><label>Kata Sandi (minimal 6 karakter)</label><input id="reg-password" type="password" placeholder="Buat kata sandi"></div>
+                    <div class="form-group"><label>Konfirmasi Kata Sandi</label><input id="reg-confirm" type="password" placeholder="Ulangi kata sandi"></div>
+                    <button class="btn btn-success" style="width:100%" onclick="registerStudent()">Buat Akun</button>
+                    <button class="btn btn-secondary" style="width:100%;margin-top:8px" onclick="toggleRegister(false)">Kembali ke Login</button>
+                </div>
+                <p id="firebase-status" style="font-size:.78rem;color:#b45309;margin:14px 0 0">Menghubungkan ke database online...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- HALAMAN APLIKASI UTAMA -->
+    <div id="app-section" class="hidden">
+        <!-- Navbar -->
+        <div class="navbar">
+            <div class="navbar-brand">
+                <h2>12 TKJ 3 TAV</h2>
+                <span id="nav-user-role-label">Sistem Informasi Kelas</span>
+            </div>
+            <div class="nav-right">
+                <span id="user-greeting-nav" style="font-size: 0.85rem;"></span>
+                
+                <!-- MENU TITIK TIGA (KHUSUS ADMIN) -->
+                <div id="admin-dots-wrapper" class="hidden">
+                    <button class="dots-btn" onclick="toggleDropdown()" title="Menu Lainnya">&#8942;</button>
+                    <div id="dots-dropdown" class="dropdown-menu">
+                        <button onclick="showPage('page-akun')">&#128100; Manajemen Akun</button>
+                    </div>
+                </div>
+
+                <button class="btn btn-danger btn-sm" onclick="handleLogout()">Keluar</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- WIDGET TANGGAL & BULAN OTOMATIS -->
+            <div class="card" style="padding: 12px 20px; background: #eef2f7; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="font-size: 0.8rem; color: #555; display: block;">Tanggal Hari Ini:</span>
+                    <strong id="current-date-display" style="font-size: 1rem; color: #2c3e50;">-</strong>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-size: 0.8rem; color: #555; display: block;">Periode Bulan:</span>
+                    <strong id="current-month-display" style="font-size: 1rem; color: #2c3e50;">-</strong>
+                </div>
+            </div>
+
+            <!-- NAVIGASI MENU UTAMA -->
+            <div class="main-menu-grid">
+                <div class="menu-tile" onclick="showPage('page-dashboard')">&#127968; Beranda</div>
+                <div class="menu-tile" onclick="showPage('page-struktur')">&#128101; Struktur Kelas</div>
+                <div class="menu-tile" onclick="showPage('page-piket')">&#128197; Jadwal Piket</div>
+                <div class="menu-tile" onclick="showPage('page-foto')">&#128247; Kenangan Foto</div>
+                <div class="menu-tile" onclick="showPage('page-tabungan')">&#128176; Data Tabungan</div>
+                <div class="menu-tile" onclick="showPage('page-chat')">&#128172; Chat Kelas</div>
+            </div>
+
+            <!-- 1. HALAMAN BERANDA -->
+            <div id="page-dashboard" class="card page-content">
+                <h2 id="welcome-banner-text" style="color: #6c5ce7; margin-top: 0;">HALLO, SELAMAT DATANG ... DI 12 TKJ 3 TAV</h2>
+                <p id="dashboard-desc" style="color: #555;"></p>
+            </div>
+
+            <!-- 2. HALAMAN STRUKTUR KELAS -->
+            <div id="page-struktur" class="card page-content hidden">
+                <h3>Struktur Organisasi Kelas</h3>
+                <div id="admin-struktur-form" class="hidden" style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4 style="margin-top: 0;">Tambah / Kelola Jabatan Kelas</h4>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <input type="text" id="struct-jabatan" placeholder="Nama Jabatan (Cth: Ketua Kelas)" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                        <input type="text" id="struct-nama" placeholder="Nama Siswa" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                        <button class="btn btn-success" onclick="tambahStruktur()">Tambah Jabatan</button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Jabatan</th>
+                            <th>Nama Siswa</th>
+                            <th id="th-aksi-struktur" class="hidden">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-struktur-body"></tbody>
+                </table>
+            </div>
+
+            <!-- 3. HALAMAN JADWAL PIKET -->
+            <div id="page-piket" class="card page-content hidden">
+                <h3>Jadwal Piket Mingguan</h3>
+                <div id="admin-piket-form" class="hidden" style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4 style="margin-top: 0;">Kelola Anggota Piket</h4>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <select id="piket-hari" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                            <option value="Senin">Senin</option>
+                            <option value="Selasa">Selasa</option>
+                            <option value="Rabu">Rabu</option>
+                            <option value="Kamis">Kamis</option>
+                            <option value="Jumat">Jumat</option>
+                        </select>
+                        <input type="text" id="piket-nama" placeholder="Nama Siswa (Pisahkan koma jika banyak)" style="flex: 2; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                        <button class="btn btn-success" onclick="simpanPiket()">Simpan Piket</button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Hari</th>
+                            <th>Daftar Nama Petugas Piket</th>
+                            <th id="th-aksi-piket" class="hidden">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-piket-body"></tbody>
+                </table>
+            </div>
+
+            <!-- 4. HALAMAN KENANGAN FOTO -->
+            <div id="page-foto" class="card page-content hidden">
+                <h3>Kenangan Foto Kelas</h3>
+                <p>Dokumentasi galeri kelas tersimpan aman melalui tautan Google Drive.</p>
+                
+                <div id="admin-foto-form" class="hidden" style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4 style="margin-top: 0;">Atur Link Google Drive</h4>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="input-gdrive-link" placeholder="https://drive.google.com/..." style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                        <button class="btn btn-primary" style="width: auto;" onclick="simpanDriveLink()">Simpan Link</button>
+                    </div>
+                </div>
+
+                <div style="text-align: center; padding: 40px; background: #fafbfc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                    <p style="margin-bottom: 20px; font-weight: 500;">Klik tombol di bawah untuk membuka Google Drive Kenangan Foto Kelas:</p>
+                    <a id="gdrive-button-link" href="#" target="_blank" class="btn btn-primary" style="text-decoration: none; display: inline-block; width: auto; padding: 12px 30px;">Buka Google Drive Kelas</a>
+                </div>
+            </div>
+
+            <!-- 5. HALAMAN DATA TABUNGAN -->
+            <div id="page-tabungan" class="card page-content hidden">
+                <h3>Data Tabungan Siswa</h3>
+                
+                <!-- Total Saldo Keseluruhan -->
+                <div class="summary-banner">
+                    <div>
+                        <h3>Total Saldo Tabungan Keseluruhan</h3>
+                        <div class="total-amount" id="total-semua-tabungan">Rp 0</div>
+                    </div>
+                    <div style="font-size: 2.5rem;">&#128181;</div>
+                </div>
+
+                <!-- Form Tambah Transaksi / Edit Siswa Tabungan (Admin Only) -->
+                <div id="admin-tabungan-form" class="hidden" style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4 style="margin-top: 0;">Input Transaksi / Kelola Tabungan Siswa</h4>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <input type="text" id="tab-nama" placeholder="Nama Siswa" style="flex: 2; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                        <select id="tab-jenis" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                            <option value="setor">Setor (+)</option>
+                            <option value="tarik">Tarik (-)</option>
+                        </select>
+                        <input type="number" id="tab-nominal" placeholder="Nominal (Rp)" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                        <input type="text" id="tab-keterangan" placeholder="Keterangan (Opsional saat tarik)" style="flex: 2; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                        <button class="btn btn-success" onclick="tambahTransaksiTabungan()">Simpan Transaksi</button>
+                    </div>
+                </div>
+
+                <!-- Iuran kelas: admin -->
+                <div id="admin-iuran-form" class="hidden" style="background:#fff8e8;padding:15px;border-radius:10px;margin-bottom:20px;border:1px solid #f4d28b">
+                    <h4 style="margin:0 0 12px">&#128176; Tarik Iuran dari Seluruh Siswa</h4>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap">
+                        <input type="number" min="1" id="iuran-nominal" placeholder="Nominal iuran per siswa (Rp)" style="flex:1;min-width:180px;padding:10px;border:1px solid #ccc;border-radius:8px">
+                        <input type="text" id="iuran-keterangan" placeholder="Keterangan (contoh: Iuran kas kelas bulan November)" style="flex:2;min-width:220px;padding:10px;border:1px solid #ccc;border-radius:8px">
+                        <button class="btn btn-warning" onclick="prosesIuranKelas()">Proses Iuran</button>
+                    </div>
+                    <small style="display:block;margin-top:8px;color:#7c5b18">Iuran diproses untuk semua akun siswa. Sistem membatalkan proses jika saldo salah satu siswa tidak mencukupi.</small>
+                </div>
+                <!-- Pencarian dan ekspor -->
+                <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0">
+                    <input id="cari-siswa" type="search" oninput="filterNamaSiswa()" placeholder="&#128269; Cari nama siswa..." style="flex:1;min-width:190px;padding:11px;border:1px solid #dbe2ea;border-radius:9px">
+                    <button class="btn btn-success" onclick="downloadLaporanExcel()">&#128190; Download Excel</button>
+                </div>
+                <!-- Tabel Riwayat & Rekap Tabungan -->
+                <h4>Riwayat & Saldo Tabungan Siswa</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal & Waktu</th>
+                            <th>Nama Siswa</th>
+                            <th>Keterangan</th>
+                            <th>Nominal</th>
+                            <th>Total Saldo Siswa</th>
+                            <th id="th-aksi-tabungan" class="hidden">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-tabungan-body"></tbody>
+                </table>
+            </div>
+
+            <!-- 6. HALAMAN CHAT KELAS -->
+            <div id="page-chat" class="card page-content hidden">
+                <h3>&#128172; Chat Antaranggota Kelas</h3>
+                <p style="color:#64748b">Pesan diperbarui secara realtime untuk seluruh anggota kelas.</p>
+                <div id="chat-messages" style="height:360px;overflow-y:auto;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px">
+                    <p style="text-align:center;color:#94a3b8">Memuat pesan...</p>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:12px">
+                    <input id="chat-input" type="text" maxlength="1000" placeholder="Tulis pesan untuk kelas..." style="flex:1;min-width:0;padding:12px;border:1px solid #dbe2ea;border-radius:9px" onkeydown="if(event.key==='Enter')kirimChat()">
+                    <button class="btn btn-primary" style="width:auto" onclick="kirimChat()">Kirim</button>
+                </div>
+            </div>
+
+            <!-- 7. HALAMAN MANAJEMEN AKUN (ADMIN ONLY) -->
+            <div id="page-akun" class="card page-content hidden">
+                <h3>Manajemen Akun Pengguna</h3>
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4 id="form-akun-title" style="margin-top: 0;">Buat Akun Baru</h4>
+                    <input type="hidden" id="edit-akun-index" value="-1">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+                        <input type="text" id="akun-nama" placeholder="Nama Lengkap" style="padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                        <input type="text" id="akun-username" placeholder="Username" style="padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                        <input type="text" id="akun-password" placeholder="Password" style="padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                        <select id="akun-role" style="padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                            <option value="admin">Admin</option>
+                            <option value="siswa">Siswa</option>
+                        </select>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <button class="btn btn-primary" style="width: auto;" onclick="simpanAkun()">Simpan Akun</button>
+                        <button class="btn btn-secondary hidden" id="btn-batal-edit" onclick="resetFormAkun()">Batal Edit</button>
+                    </div>
+                </div>
+
+                <h4>Daftar Akun Terdaftar</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama Lengkap</th>
+                            <th>Username</th>
+                            <th>Password</th>
+                            <th>Role</th>
+                            <th>Status Akun</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-akun-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- INISIALISASI TANGGAL & KALENDER REALTIME ---
+        function setRealTimeCalendar() {
+            const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const optionsMonth = { month: 'long', year: 'numeric' };
+            const today = new Date();
+
+            document.getElementById('current-date-display').innerText = today.toLocaleDateString('id-ID', optionsDate);
+            document.getElementById('current-month-display').innerText = today.toLocaleDateString('id-ID', optionsMonth);
+        }
+
+        window.onload = function() {
+            setRealTimeCalendar();
+            cekStatusLoginAwal();
+        };
+
+        // --- DATA DEFAULT & LOCALSTORAGE ---
+        const defaultUsers = [
+            { nama: "Administrator Utama", username: "admin", password: "123", role: "admin", status: "offline" }
+        ];
+
+        const defaultStruktur = [
+            { jabatan: "Ketua Kelas", nama: "Ahmad Fauzi" },
+            { jabatan: "Wakil Ketua", nama: "Siti Aminah" },
+            { jabatan: "Sekretaris", nama: "Dewi Lestari" },
+            { jabatan: "Bendahara", nama: "Rizky Pratama" }
+        ];
+
+        const defaultPiket = [
+            { hari: "Senin", anggota: "Ahmad Fauzi, Siti Aminah" },
+            { hari: "Selasa", anggota: "Budi Santoso, Rina Melati" },
+            { hari: "Rabu", anggota: "Joko Widodo, Sri Mulyani" },
+            { hari: "Kamis", anggota: "Doni Setiawan, Maya Sari" },
+            { hari: "Jumat", anggota: "Eko Prasetyo, Dian Sastrowardoyo" }
+        ];
+
+        const defaultTabungan = [
+            { tanggal: "13/11/2026 08:30", nama: "Ahmad Fauzi", keterangan: "nabung", nominal: 50000, jenis: "setor" },
+            { tanggal: "13/11/2026 09:15", nama: "Siti Aminah", keterangan: "nabung", nominal: 100000, jenis: "setor" }
+        ];
+
+        let users = JSON.parse(localStorage.getItem('app_users')) || defaultUsers;
+        let struktur = JSON.parse(localStorage.getItem('app_struktur')) || defaultStruktur;
+        let piket = JSON.parse(localStorage.getItem('app_piket')) || defaultPiket;
+        let tabungan = JSON.parse(localStorage.getItem('app_tabungan')) || defaultTabungan;
+        let driveLink = localStorage.getItem('app_gdrive_link') || "https://drive.google.com";
+        let currentUser = JSON.parse(localStorage.getItem('app_current_user')) || null;
+
+        function saveData() {
+            localStorage.setItem('app_users', JSON.stringify(users));
+            localStorage.setItem('app_struktur', JSON.stringify(struktur));
+            localStorage.setItem('app_piket', JSON.stringify(piket));
+            localStorage.setItem('app_tabungan', JSON.stringify(tabungan));
+            localStorage.setItem('app_gdrive_link', driveLink);
+            if(currentUser) {
+                localStorage.setItem('app_current_user', JSON.stringify(currentUser));
+            } else {
+                localStorage.removeItem('app_current_user');
+            }
+        }
+
+        function cekStatusLoginAwal() {
+            if (currentUser) {
+                // Set status online
+                let uIdx = users.findIndex(u => u.username === currentUser.username);
+                if(uIdx !== -1) {
+                    users[uIdx].status = "online";
+                    saveData();
+                }
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('app-section').classList.remove('hidden');
+                inisialisasiSesiUI();
+                showPage('page-dashboard');
+            }
+        }
+
+        // --- SISTEM LOGIN & LOGOUT ---
+        function handleLogin() {
+            const userInp = document.getElementById('login-username').value.trim();
+            const passInp = document.getElementById('login-password').value.trim();
+            const roleInp = document.getElementById('login-role-select').value;
+
+            const found = users.find(u => u.username === userInp && u.password === passInp && u.role === roleInp);
+            if (!found) {
+                alert("Username, Password, atau Akses Masuk salah!");
+                return;
+            }
+
+            currentUser = found;
+            currentUser.status = "online";
+            
+            // Perbarui status online di database user
+            let idx = users.findIndex(u => u.username === currentUser.username);
+            if(idx !== -1) users[idx].status = "online";
+
+            saveData();
+
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('app-section').classList.remove('hidden');
+            
+            inisialisasiSesiUI();
+            showPage('page-dashboard');
+        }
+
+        function handleLogout() {
+            if(currentUser) {
+                let idx = users.findIndex(u => u.username === currentUser.username);
+                if(idx !== -1) users[idx].status = "offline";
+                saveData();
+            }
+            currentUser = null;
+            localStorage.removeItem('app_current_user');
+            
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+            document.getElementById('app-section').classList.add('hidden');
+            document.getElementById('login-section').classList.remove('hidden');
+        }
+
+        function inisialisasiSesiUI() {
+            const greetingNav = document.getElementById('user-greeting-nav');
+            const roleLabel = document.getElementById('nav-user-role-label');
+            const adminDots = document.getElementById('admin-dots-wrapper');
+            const welcomeBanner = document.getElementById('welcome-banner-text');
+            const dashboardDesc = document.getElementById('dashboard-desc');
+
+            greetingNav.innerText = `Halo, ${currentUser.nama} (${currentUser.role.toUpperCase()})`;
+            roleLabel.innerText = `Sistem Informasi Kelas - ${currentUser.role === 'admin' ? 'Administrator' : 'Siswa'}`;
+            welcomeBanner.innerText = `HALLO, SELAMAT DATANG ${currentUser.nama.toUpperCase()} DI 12 TKJ 3 TAV`;
+
+            if (currentUser.role === 'admin') {
+                adminDots.classList.remove('hidden');
+                dashboardDesc.innerText = "Anda memiliki hak akses penuh sebagai Admin untuk mengelola struktur kelas, jadwal piket, link foto kenangan, data tabungan, dan manajemen akun.";
+                
+                // Tampilkan kontrol admin
+                document.getElementById('admin-struktur-form').classList.remove('hidden');
+                document.getElementById('th-aksi-struktur').classList.remove('hidden');
+                document.getElementById('admin-piket-form').classList.remove('hidden');
+                document.getElementById('th-aksi-piket').classList.remove('hidden');
+                document.getElementById('admin-foto-form').classList.remove('hidden');
+                document.getElementById('admin-tabungan-form').classList.remove('hidden');
+                document.getElementById('th-aksi-tabungan').classList.remove('hidden');
+            } else {
+                adminDots.classList.add('hidden');
+                dashboardDesc.innerText = "Anda masuk sebagai Siswa. Anda dapat melihat struktur kelas, jadwal piket, galeri foto kenangan, dan rekapitulasi data tabungan kelas.";
+                
+                // Sembunyikan kontrol admin
+                document.getElementById('admin-struktur-form').classList.add('hidden');
+                document.getElementById('th-aksi-struktur').classList.add('hidden');
+                document.getElementById('admin-piket-form').classList.add('hidden');
+                document.getElementById('th-aksi-piket').classList.add('hidden');
+                document.getElementById('admin-foto-form').classList.add('hidden');
+                document.getElementById('admin-tabungan-form').classList.add('hidden');
+                document.getElementById('th-aksi-tabungan').classList.add('hidden');
+            }
+        }
+
+        // --- NAVIGASI & DROPDOWN ---
+        function toggleDropdown() {
+            document.getElementById('dots-dropdown').classList.toggle('show');
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.dots-btn')) {
+                const dropdown = document.getElementById('dots-dropdown');
+                if (dropdown && dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        }
+
+        function showPage(pageId) {
+            if (currentUser.role === 'siswa' && pageId === 'page-akun') {
+                alert("Hanya admin yang dapat mengakses halaman manajemen akun!");
+                return;
+            }
+
+            document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+
+            if (pageId === 'page-struktur') renderStruktur();
+            if (pageId === 'page-piket') renderPiket();
+            if (pageId === 'page-foto') renderFotoPage();
+            if (pageId === 'page-tabungan') renderTabungan();
+            if (pageId === 'page-akun') renderTabelAkun();
+        }
+
+        // --- STRUKTUR KELAS ---
+        function renderStruktur() {
+            const tbody = document.getElementById('tabel-struktur-body');
+            tbody.innerHTML = '';
+            struktur.forEach((item, index) => {
+                let aksiHtml = currentUser.role === 'admin' ? `<td><button class="btn btn-danger btn-sm" onclick="hapusStruktur(${index})">Hapus</button></td>` : '';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.jabatan}</strong></td>
+                        <td>${item.nama}</td>
+                        ${aksiHtml}
+                    </tr>
+                `;
+            });
+        }
+
+        function tambahStruktur() {
+            if(currentUser.role !== 'admin') { alert("Hanya admin yang dapat mengakses"); return; }
+            const jabatan = document.getElementById('struct-jabatan').value.trim();
+            const nama = document.getElementById('struct-nama').value.trim();
+            if(!jabatan || !nama) { alert("Isi jabatan dan nama siswa!"); return; }
+            
+            struktur.push({ jabatan, nama });
+            saveData();
+            document.getElementById('struct-jabatan').value = '';
+            document.getElementById('struct-nama').value = '';
+            renderStruktur();
+        }
+
+        function hapusStruktur(index) {
+            if(currentUser.role !== 'admin') { alert("Hanya admin yang dapat mengakses"); return; }
+            if(confirm("Hapus jabatan ini?")) {
+                struktur.splice(index, 1);
+                saveData();
+                renderStruktur();
+            }
+        }
+
+        // --- JADWAL PIKET ---
+        function renderPiket() {
+            const tbody = document.getElementById('tabel-piket-body');
+            tbody.innerHTML = '';
+            piket.forEach((item, index) => {
+                let aksiHtml = currentUser.role === 'admin' ? `<td><button class="btn btn-danger btn-sm" onclick="hapusPiket(${index})">Hapus</button></td>` : '';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.hari}</strong></td>
+                        <td>${item.anggota}</td>
+                        ${aksiHtml}
+                    </tr>
+                `;
+            });
+        }
+
+        function simpanPiket() {
+            if(currentUser.role !== 'admin') { alert("Hanya admin yang dapat mengakses"); return; }
+            const hari = document.getElementById('piket-hari').value;
+            const anggota = document.getElementById('piket-nama').value.trim();
+            if(!anggota) { alert("Masukkan nama anggota piket!"); return; }
+
+            let existing = piket.find(p => p.hari === hari);
+            if(existing) {
+                existing.anggota = anggota;
+            } else {
+                piket.push({ hari, anggota });
+            }
+            saveData();
+            document.getElementById('piket-nama').value = '';
+            renderPiket();
+        }
+
+        function hapusPiket(index) {
+            if(currentUser.role !== 'admin') { alert("Hanya admin yang dapat mengakses"); return; }
+            if(confirm("Hapus jadwal piket hari ini?")) {
+                piket.splice(index, 1);
+                saveData();
+                renderPiket();
+            }
+        }
+
+        // --- KENANGAN FOTO (GDRIVE) ---
+        function renderFotoPage() {
+            document.getElementById('gdrive-button-link').href = driveLink;
+            document.getElementById('input-gdrive-link').value = driveLink;
+        }
+
+        function simpanDriveLink() {
+            if(currentUser.role !== 'admin') { alert("Hanya admin yang dapat mengakses"); return; }
+            const link = document.getElementById('input-gdrive-link').value.trim();
+            if(!link) { alert("Link Google Drive tidak boleh kosong!"); return; }
+            driveLink = link;
+            saveData();
+            alert("Link Google Drive berhasil diperbarui!");
+            renderFotoPage();
+        }
+
+        // --- DATA TABUNGAN ---
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+        }
+
+        function renderTabungan() {
+            const tbody = document.getElementById('tabel-tabungan-body');
+            tbody.innerHTML = '';
+
+            // Hitung saldo per siswa secara akumulatif
+            let saldoPerSiswa = {};
+            tabungan.forEach(t => {
+                if(!saldoPerSiswa[t.nama]) saldoPerSiswa[t.nama] = 0;
+                if(t.jenis === 'setor') {
+                    saldoPerSiswa[t.nama] += t.nominal;
+                } else {
+                    saldoPerSiswa[t.nama] -= t.nominal;
+                }
+            });
+
+            let totalKeseluruhan = 0;
+            Object.values(saldoPerSiswa).forEach(s => totalKeseluruhan += s);
+            document.getElementById('total-semua-tabungan').innerText = formatRupiah(totalKeseluruhan);
+
+            // Render baris riwayat
+            tabungan.forEach((item, index) => {
+                let nominalFormatted = item.jenis === 'tarik' ? `- ${formatRupiah(item.nominal)}` : `+ ${formatRupiah(item.nominal)}`;
+                let nominalClass = item.jenis === 'tarik' ? 'text-danger' : 'text-success';
+                let currentSaldoSiswa = saldoPerSiswa[item.nama] || 0;
+                let aksiHtml = currentUser.role === 'admin' ? `<td><button class="btn btn-danger btn-sm" onclick="hapusTransaksiTabungan(${index})">Hapus</button></td>` : '';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.tanggal}</td>
+                        <td><strong>${item.nama}</strong></td>
+                        <td>${item.keterangan}</td>
+                        <td class="${nominalClass}">${nominalFormatted}</td>
+                        <td><strong>${formatRupiah(currentSaldoSiswa)}</strong></td>
+                        ${aksiHtml}
+                    </tr>
+                `;
+            });
+        }
+
+        function tambahTransaksiTabungan() {
+            if(currentUser.role !== 'admin') { 
+                alert("Hanya admin yang dapat mengakses"); 
+                return; 
+            }
+
+            const nama = document.getElementById('tab-nama').value.trim();
+            const jenis = document.getElementById('tab-jenis').value;
+            const nominal = parseInt(document.getElementById('tab-nominal').value);
+            let keterangan = document.getElementById('tab-keterangan').value.trim();
+
+            if (!nama || isNaN(nominal) || nominal <= 0) {
+                alert("Masukkan nama siswa dan nominal yang valid!");
+                return;
+            }
+
+            if(jenis === 'setor') {
+                keterangan = "nabung";
+            } else {
+                if(!keterangan) keterangan = "Penarikan tunai tabungan";
+            }
+
+            // Dapatkan tanggal dan waktu realtime format id-ID
+            const now = new Date();
+            const tanggalStr = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+            tabungan.push({
+                tanggal: tanggalStr,
+                nama: nama,
+                keterangan: keterangan,
+                nominal: nominal,
+                jenis: jenis
+            });
+
+            saveData();
+            document.getElementById('tab-nama').value = '';
+            document.getElementById('tab-nominal').value = '';
+            document.getElementById('tab-keterangan').value = '';
+            renderTabungan();
+        }
+
+        function hapusTransaksiTabungan(index) {
+            if(currentUser.role !== 'admin') { alert("Hanya admin yang dapat mengakses"); return; }
+            if(confirm("Hapus catatan transaksi ini?")) {
+                tabungan.splice(index, 1);
+                saveData();
+                renderTabungan();
+            }
+        }
+
+        // --- MANAJEMEN AKUN (ADMIN ONLY) ---
+        function renderTabelAkun() {
+            if(currentUser.role !== 'admin') return;
+            const tbody = document.getElementById('tabel-akun-body');
+            tbody.innerHTML = '';
+
+            users.forEach((u, index) => {
+                const badgeRole = u.role === 'admin' 
+                    ? '<span class="badge badge-admin">Admin</span>' 
+                    : '<span class="badge badge-siswa">Siswa</span>';
+
+                const badgeStatus = u.status === 'online'
+                    ? '<span class="badge badge-online">Online</span>'
+                    : '<span class="badge badge-offline">Offline</span>';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${u.nama}</td>
+                        <td>${u.username}</td>
+                        <td>${u.password}</td>
+                        <td>${badgeRole}</td>
+                        <td>${badgeStatus}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="editAkun(${index})">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="hapusAkun(${index})">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function simpanAkun() {
+            if(currentUser.role !== 'admin') { alert("Hanya admin yang dapat mengakses"); return; }
+            const nama = document.getElementById('akun-nama').value.trim();
+            const username = document.getElementById('akun-username').value.trim();
+            const password = document.getElementById('akun-password').value.trim();
+            const role = document.getElementById('akun-role').value;
+            const editIndex = parseInt(document.getElementById('edit-akun-index').value);
+
+            if (!nama || !username || !password) {
+                alert("Semua kolom akun wajib diisi!");
+                return;
+            }
+
+            if (editIndex === -1) {
+                if (users.some(u => u.username === username)) {
+                    alert("Username sudah digunakan!");
+                    return;
+                }
+                users.push({ nama, username, password, role, status: "offline" });
+            } else {
+                users[editIndex].nama = nama;
+                users[editIndex].username = username;
+                users[editIndex].password = password;
+                users[editIndex].role = role;
+            }
+
+            saveData();
+            resetFormAkun();
+            renderTabelAkun();
+        }
+
+        function editAkun(index) {
+            const u = users[index];
+            document.getElementById('form-akun-title').innerText = "Edit Akun Pengguna";
+            document.getElementById('edit-akun-index').value = index;
+            document.getElementById('akun-nama').value = u.nama;
+            document.getElementById('akun-username').value = u.username;
+            document.getElementById('akun-password').value = u.password;
+            document.getElementById('akun-role').value = u.role;
+            document.getElementById('btn-batal-edit').classList.remove('hidden');
+        }
+
+        function hapusAkun(index) {
+            if(currentUser.role !== 'admin') { alert("Hanya admin yang dapat mengakses"); return; }
+            if (users[index].username === currentUser.username) {
+                alert("Tidak dapat menghapus akun yang sedang aktif digunakan login!");
+                return;
+            }
+            if (confirm(`Yakin ingin menghapus akun "${users[index].nama}"?`)) {
+                users.splice(index, 1);
+                saveData();
+                renderTabelAkun();
+            }
+        }
+
+        function resetFormAkun() {
+            document.getElementById('form-akun-title').innerText = "Buat Akun Baru";
+            document.getElementById('edit-akun-index').value = "-1";
+            document.getElementById('akun-nama').value = '';
+            document.getElementById('akun-username').value = '';
+            document.getElementById('akun-password').value = '';
+            document.getElementById('akun-role').value = 'admin';
+            document.getElementById('btn-batal-edit').classList.add('hidden');
+        }
+    </script>
+
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+    // =============================================================
+    // FIREBASE ONLINE - GANTI KONFIGURASI DI BAWAH DENGAN MILIK ANDA
+    // =============================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzGcL78IsYHKqR4fszu-n_x-AC3WC031I",
+      authDomain: "tkj3-tav-941cd.firebaseapp.com",
+      projectId: "tkj3-tav-941cd",
+      storageBucket: "tkj3-tav-941cd.firebasestorage.app",
+      messagingSenderId: "747309325724",
+      appId: "1:747309325724:web:10bdd6b94cb8dbf4a6fc59"
+    };
+    let db = null, auth = null, chatUnsubscribe = null, firebaseReady = false;
+    // Jangan memakai sesi localStorage versi lama; sesi login kini dikelola Firebase Auth.
+    currentUser = null; localStorage.removeItem('app_current_user');
+    const usernameToEmail = u => String(u).trim().toLowerCase() + "@12tkj3tav.com";
+    const statusEl = () => document.getElementById('firebase-status');
+
+    function firebaseConfigured(){ return firebaseConfig.apiKey !== 'GANTI_DENGAN_API_KEY' && firebaseConfig.projectId !== 'GANTI_PROJECT_ID'; }
+    function toggleRegister(show){ document.getElementById('register-panel').classList.toggle('hidden',!show); }
+
+    async function initFirebase(){
+      if(!firebaseConfigured()){
+        if(statusEl()) statusEl().textContent='Firebase belum dikonfigurasi. Isi firebaseConfig terlebih dahulu agar login dan data online aktif.';
+        return;
+      }
+      try {
+        if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        auth=firebase.auth(); db=firebase.firestore();
+        await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+        firebaseReady=true;
+        if(statusEl()) { statusEl().textContent='Database online siap digunakan.'; statusEl().style.color='#15803d'; }
+        // Pulihkan sesi yang masih aktif setelah halaman dimuat ulang.
+        if(auth.currentUser) await bukaSesiFirebase(auth.currentUser);
+      } catch(e){ console.error(e); if(statusEl()) statusEl().textContent='Gagal menghubungkan Firebase: '+e.message; }
+    }
+
+    async function ambilDataCloud(){
+      const snap=await db.collection('appData').doc('utama').get();
+      if(snap.exists){ const d=snap.data();
+        struktur=Array.isArray(d.struktur)?d.struktur:[];
+        piket=Array.isArray(d.piket)?d.piket:[];
+        tabungan=Array.isArray(d.tabungan)?d.tabungan:[];
+        driveLink=d.driveLink||'https://drive.google.com';
+      } else {
+        // Data awal dari browser lama hanya dipakai sebagai data awal pada proyek Firebase baru.
+        await db.collection('appData').doc('utama').set({struktur, piket, tabungan, driveLink});
+      }
+      const us=await db.collection('users').get();
+      users=us.docs.map(d=>({uid:d.id,...d.data(),status:'offline'}));
+    }
+
+    async function bukaSesiFirebase(user){
+      try{
+        const profile=await db.collection('users').doc(user.uid).get();
+        if(!profile.exists){ await auth.signOut(); alert('Profil akun tidak ditemukan. Hubungi admin.'); return; }
+        currentUser={uid:user.uid,...profile.data(),status:'online'};
+        await ambilDataCloud();
+        const ix=users.findIndex(u=>u.uid===user.uid); if(ix>=0) users[ix].status='online';
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('app-section').classList.remove('hidden');
+        inisialisasiSesiUI(); showPage('page-dashboard');
+      }catch(e){console.error(e);alert('Tidak dapat memuat data online: '+e.message);}
+    }
+
+    window.handleLogin=async function(){
+      if(!firebaseReady){alert('Firebase belum siap. Pastikan konfigurasi Firebase sudah diisi.');return;}
+      const username=document.getElementById('login-username').value.trim().toLowerCase();
+      const password=document.getElementById('login-password').value;
+      const role=document.getElementById('login-role-select').value;
+      if(!username||!password){alert('Masukkan username dan kata sandi.');return;}
+      try{
+        // Login memakai email sintetis dari username, sehingga tidak perlu membaca Firestore sebelum autentikasi.
+        const cred=await auth.signInWithEmailAndPassword(usernameToEmail(username),password);
+        const profileSnap=await db.collection('users').doc(cred.user.uid).get();
+        if(!profileSnap.exists){await auth.signOut();alert('Profil akun tidak ditemukan. Hubungi admin.');return;}
+        if(profileSnap.data().role!==role){await auth.signOut();alert('Pilihan akses tidak sesuai dengan akun.');return;}
+        await bukaSesiFirebase(cred.user);
+      }catch(e){console.error(e);alert(e.code==='auth/user-not-found'?'Akun tidak ditemukan.':(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'?'Username atau kata sandi salah.':e.message));}
+    };
+
+    window.registerStudent=async function(){
+      if(!firebaseReady){alert('Firebase belum dikonfigurasi.');return;}
+      const nama=document.getElementById('reg-nama').value.trim();
+      const username=document.getElementById('reg-username').value.trim().toLowerCase();
+      const password=document.getElementById('reg-password').value;
+      const confirmPass=document.getElementById('reg-confirm').value;
+      if(!nama||!username||!password){alert('Lengkapi semua kolom.');return;}
+      if(!/^[a-z0-9._-]{3,20}$/.test(username)){alert('Username 3-20 karakter, gunakan huruf kecil, angka, titik, garis bawah, atau strip.');return;}
+      if(password.length<6){alert('Kata sandi minimal 6 karakter.');return;}
+      if(password!==confirmPass){alert('Konfirmasi kata sandi tidak sama.');return;}
+      try{
+        // Email sintetis membuat username unik tanpa perlu membaca koleksi users sebelum login.
+        const email=usernameToEmail(username);
+        const cred=await auth.createUserWithEmailAndPassword(email,password);
+        await db.collection('users').doc(cred.user.uid).set({nama,username,email,role:'siswa',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+        alert('Pendaftaran berhasil. Selamat datang, '+nama+'!');
+        await bukaSesiFirebase(cred.user);
+      }catch(e){console.error(e);alert('Pendaftaran gagal: '+e.message);}
+    };
+
+    window.handleLogout=async function(){
+      if(chatUnsubscribe){chatUnsubscribe();chatUnsubscribe=null;}
+      try{ if(auth) await auth.signOut(); }catch(e){console.error(e);}
+      currentUser=null;
+      document.getElementById('app-section').classList.add('hidden');
+      document.getElementById('login-section').classList.remove('hidden');
+      document.getElementById('login-password').value='';
+    };
+
+    window.saveData=async function(){
+      // Cache lokal untuk mempercepat tampilan perangkat ini; sumber utama tetap Firestore.
+      localStorage.setItem('app_struktur',JSON.stringify(struktur));
+      localStorage.setItem('app_piket',JSON.stringify(piket));
+      localStorage.setItem('app_tabungan',JSON.stringify(tabungan));
+      localStorage.setItem('app_gdrive_link',driveLink);
+      if(firebaseReady && currentUser?.role==='admin'){
+        try{await db.collection('appData').doc('utama').set({struktur,piket,tabungan,driveLink,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}
+        catch(e){console.error(e);alert('Gagal menyimpan ke Firebase: '+e.message);}
+      }
+    };
+
+    // Akun baru dibuat melalui pendaftaran Firebase Auth; admin mengelola hak akses melalui Firestore.
+    window.simpanAkun=function(){alert('Akun siswa dibuat melalui tombol Daftar di halaman login. Untuk membuat atau mengubah admin, gunakan Firebase Authentication dan dokumen users di Firestore.');};
+    window.renderTabelAkun=async function(){
+      if(!currentUser||currentUser.role!=='admin')return;
+      const tbody=document.getElementById('tabel-akun-body'); tbody.innerHTML='';
+      try{
+        const snap=await db.collection('users').get();
+        users=snap.docs.map(d=>({uid:d.id,...d.data(),status:'offline'}));
+        users.forEach((u,i)=>{const tr=document.createElement('tr');
+          [u.nama||'',u.username||'',u.email||'',u.role||'siswa','Terdaftar'].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.appendChild(td);});
+          const td=document.createElement('td');td.textContent='Kelola akun melalui Firebase Console';tr.appendChild(td);tbody.appendChild(tr);
+        });
+      }catch(e){tbody.innerHTML='<tr><td colspan="6">Gagal memuat akun: '+e.message+'</td></tr>';}
+    };
+
+    // Cari siswa pada tabel riwayat tabungan.
+    window.filterNamaSiswa=function(){
+      const q=(document.getElementById('cari-siswa').value||'').toLowerCase();
+      document.querySelectorAll('#tabel-tabungan-body tr').forEach(tr=>{tr.style.display=tr.cells[1]?.textContent.toLowerCase().includes(q)?'':'none';});
+    };
+
+    window.prosesIuranKelas=async function(){
+      if(!currentUser||currentUser.role!=='admin'){alert('Khusus admin.');return;}
+      const nominal=Number(document.getElementById('iuran-nominal').value);
+      const keterangan=document.getElementById('iuran-keterangan').value.trim();
+      const siswa=users.filter(u=>u.role==='siswa');
+      if(!Number.isSafeInteger(nominal)||nominal<=0||!keterangan){alert('Isi nominal iuran dan keterangan dengan benar.');return;}
+      if(!siswa.length){alert('Belum ada akun siswa terdaftar.');return;}
+      const saldo={}; tabungan.forEach(t=>{saldo[t.nama]=(saldo[t.nama]||0)+(t.jenis==='setor'?Number(t.nominal):-Number(t.nominal));});
+      const kurang=siswa.filter(u=>(saldo[u.nama]||0)<nominal);
+      if(kurang.length){alert('Iuran dibatalkan. Saldo belum cukup untuk: '+kurang.map(u=>u.nama).join(', '));return;}
+      if(!confirm('Potong '+formatRupiah(nominal)+' dari '+siswa.length+' siswa dengan keterangan "'+keterangan+'"?'))return;
+      const now=new Date(), tanggal=now.toLocaleDateString('id-ID')+' '+now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+      siswa.forEach(u=>tabungan.push({tanggal,nama:u.nama,keterangan,nominal,jenis:'tarik',tipe:'iuran'}));
+      await saveData(); renderTabungan();
+      document.getElementById('iuran-nominal').value='';document.getElementById('iuran-keterangan').value='';
+      alert('Iuran berhasil dicatat untuk '+siswa.length+' siswa.');
+    };
+
+    window.downloadLaporanExcel=function(){
+      if(!window.XLSX){alert('Pustaka Excel belum termuat. Periksa koneksi internet.');return;}
+      const rows=tabungan.map(t=>({Tanggal:t.tanggal,Nama_Siswa:t.nama,Jenis:t.tipe==='iuran'?'Iuran':(t.jenis==='setor'?'Setor':'Penarikan'),Keterangan:t.keterangan,Nominal_Rp:Number(t.nominal)}));
+      const saldo={};tabungan.forEach(t=>saldo[t.nama]=(saldo[t.nama]||0)+(t.jenis==='setor'?Number(t.nominal):-Number(t.nominal)));
+      const rekap=Object.entries(saldo).map(([nama,s])=>({Nama_Siswa:nama,Saldo_Akhir_Rp:s}));
+      const wb=XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Riwayat Transaksi');
+      XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rekap),'Rekap Saldo');
+      XLSX.writeFile(wb,'Laporan_Tabungan_12_TKJ_3_TAV.xlsx');
+    };
+
+    window.kirimChat=async function(){
+      if(!firebaseReady||!currentUser){alert('Silakan login terlebih dahulu.');return;}
+      const input=document.getElementById('chat-input'), pesan=input.value.trim();if(!pesan)return;
+      try{await db.collection('chat').add({uid:currentUser.uid,nama:currentUser.nama,pesan,createdAt:firebase.firestore.FieldValue.serverTimestamp()});input.value='';}
+      catch(e){alert('Pesan gagal dikirim: '+e.message);}
+    };
+
+    function aktifkanChat(){
+      if(!db||!currentUser)return;
+      const box=document.getElementById('chat-messages');
+      if(chatUnsubscribe)chatUnsubscribe();
+      chatUnsubscribe=db.collection('chat').orderBy('createdAt','asc').limitToLast(100).onSnapshot(snap=>{
+        box.innerHTML='';
+        snap.forEach(doc=>{const m=doc.data(),mine=m.uid===currentUser.uid;
+          const wrap=document.createElement('div');wrap.className='chat-bubble'+(mine?' mine':'');
+          const meta=document.createElement('div');meta.className='chat-meta';
+          const date=m.createdAt?.toDate?m.createdAt.toDate().toLocaleString('id-ID'):'Baru saja';meta.textContent=(mine?'Anda':(m.nama||'Siswa'))+' • '+date;
+          const body=document.createElement('div');body.textContent=m.pesan||'';wrap.append(meta,body);box.appendChild(wrap);
+        });box.scrollTop=box.scrollHeight;
+      },e=>{box.textContent='Tidak dapat memuat chat: '+e.message;});
+    }
+
+    const originalShowPage=window.showPage;
+    window.showPage=function(pageId){
+      if(!currentUser){alert('Silakan login terlebih dahulu.');return;}
+      originalShowPage(pageId);
+      if(pageId==='page-chat')aktifkanChat();
+      if(pageId==='page-tabungan'&&currentUser.role==='admin')document.getElementById('admin-iuran-form').classList.remove('hidden');
+    };
+
+    // Tampilkan hanya data yang tersedia dari Firestore; status akun tidak disimpan sebagai sesi global.
+    window.onload=function(){ setRealTimeCalendar(); initFirebase(); };
+    </script>
+
+</body>
+</html>
